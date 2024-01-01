@@ -72,7 +72,7 @@ func Connect() *xgbutil.XUtil {
 	var err error
 
 	// Retry to connect
-	for i := 0; i < 10; i++ {
+	for i := 0; i < 3; i++ {
 		if i > 0 {
 			log.Warn("Retry in 1 second...")
 			time.Sleep(1000 * time.Millisecond)
