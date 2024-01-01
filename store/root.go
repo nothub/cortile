@@ -68,6 +68,7 @@ func InitRoot() {
 }
 
 func Connect() *xgbutil.XUtil {
+	var con *xgbutil.XUtil
 	var err error
 
 	// Retry to connect
@@ -78,21 +79,21 @@ func Connect() *xgbutil.XUtil {
 		}
 
 		// Connect to X server
-		X, err = xgbutil.NewConn()
+		con, err = xgbutil.NewConn()
 		if err != nil {
 			log.Error("Connection to X server failed ", err)
 			continue
 		}
 
 		// Check EWMH compliance
-		wm, err := ewmh.GetEwmhWM(X)
+		wm, err := ewmh.GetEwmhWM(con)
 		if err != nil {
 			log.Error("Window manager is not EWMH compliant ", err)
 			continue
 		}
 
 		// Validate ROOT properties
-		_, err = ewmh.ClientListStackingGet(X)
+		_, err = ewmh.ClientListStackingGet(con)
 		if err != nil {
 			log.Error("Error retrieving ROOT properties ", err)
 			continue
@@ -100,12 +101,16 @@ func Connect() *xgbutil.XUtil {
 
 		// Connection established
 		log.Info("Connected to X server [", wm, "]")
-		randr.Init(X.Conn())
+		randr.Init(con.Conn())
 
 		break
 	}
 
-	return X
+	if con == nil {
+		log.Fatal("Error connecting to X server ", err)
+	}
+
+	return con
 }
 
 func NumberOfDesktopsGet(X *xgbutil.XUtil) uint {
